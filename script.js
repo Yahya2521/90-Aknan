@@ -171,209 +171,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// دالة إرسال البريد الإلكتروني
-function sendEmail() {
-    // التحقق من وجود البيانات
-    const name = document.querySelector("#name").value.trim();
-    const email = document.querySelector("#email").value.trim();
-    const subject = document.querySelector("#subject").value.trim();
-    const message = document.querySelector("#message").value.trim();
+// contact mess 
+const form = document.getElementById('contactForm');
+    const formMessage = document.getElementById('formMessage');
+    const formMessageText = document.getElementById('formMessageText');
+    const formMessageIcon = document.getElementById('formMessageIcon');
 
-    // التحقق من أن جميع الحقول مملوءة
-    if (!name || !email || !subject || !message) {
-        alert("يرجى ملء جميع الحقول المطلوبة.");
-        return;
-    }
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-    // التحقق من صحة البريد الإلكتروني
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        alert("يرجى إدخال بريد إلكتروني صحيح.");
-        return;
-    }
+        const formData = new FormData(form);
+        const action = form.getAttribute('action');
 
-    const templateParams = {
-        from_name: name,
-        from_email: email,
-        subject: subject,
-        message: message,
-        to_name: "فريق أكنان"
-    };
+        try {
+            const response = await fetch(action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
 
-    console.log("إرسال البيانات:", templateParams);
-
-    // إظهار حالة التحميل
-    const button = document.getElementById("sendBtn");
-    const originalText = button.textContent;
-    button.textContent = "جاري الإرسال...";
-    button.disabled = true;
-
-    // إرسال الرسالة باستخدام الـ Service ID والـ Template ID الجديدين
-    emailjs.send("service_sye2ygn", "template_9uguk78", templateParams)
-    .then(function(response) {
-        console.log("نجح الإرسال:", response.status, response.text);
-        alert("تم إرسال رسالتك بنجاح! شكراً لك.");
-        // تفريغ النموذج بعد الإرسال الناجح
-        document.querySelector("#contactForm").reset();
-    })
-    .catch(function(error) {
-        console.error("فشل الإرسال:", error);
-        
-        // رسالة خطأ مفصلة حسب نوع الخطأ
-        let errorMessage = "حدث خطأ أثناء إرسال الرسالة.";
-        
-        if (error.status === 412) {
-            errorMessage = "مشكلة في صلاحيات الخدمة. يرجى التواصل معنا مباشرة على: aknanchannel@gmail.com";
-        } else if (error.status === 400) {
-            errorMessage = "خطأ في البيانات المرسلة. يرجى التحقق من صحة المعلومات.";
-        } else if (error.status === 401) {
-            errorMessage = "خطأ في المصادقة. يرجى المحاولة لاحقاً.";
-        } else if (error.text) {
-            errorMessage = error.text;
-        }
-        
-        alert(errorMessage + "\n\nللمساعدة العاجلة: aknanchannel@gmail.com");
-    })
-    .finally(function() {
-        // إعادة حالة الزر الأصلية
-        button.textContent = originalText;
-        button.disabled = false;
-    });
-}
-
-// دالة عرض الصفحات
-function showPage(page) {
-    // منطق عرض الصفحات
-    console.log('Showing page:', page);
-    // يمكنك إضافة منطق التنقل بين الصفحات هنا
-}
-
-// تفعيل قائمة الهاتف المحمول
-document.addEventListener('DOMContentLoaded', function() {
-    const mobileMenu = document.getElementById('mobileMenu');
-    const navLinks = document.getElementById('navLinks');
-    
-    if (mobileMenu && navLinks) {
-        mobileMenu.addEventListener('click', function() {
-            navLinks.classList.toggle('active');
-        });
-    }
-
-    // إضافة تأثيرات على النموذج
-    const inputs = document.querySelectorAll('input, textarea');
-    inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-            this.parentElement.classList.add('focused');
-        });
-        
-        input.addEventListener('blur', function() {
-            if (!this.value) {
-                this.parentElement.classList.remove('focused');
+            if (response.ok) {
+                showFormMessage("تم إرسال رسالتك بنجاح! شكراً لك.", "fas fa-check-circle", false);
+                form.reset();
+            } else {
+                showFormMessage("حدث خطأ، حاول مرة أخرى!", "fas fa-times-circle", true);
             }
-        });
-    });
-});
-
-// دالة للتحقق من الاتصال بالإنترنت
-function checkInternetConnection() {
-    if (!navigator.onLine) {
-        alert("يرجى التحقق من اتصالك بالإنترنت وإعادة المحاولة.");
-        return false;
-    }
-    return true;
-}
-
-// إضافة معالج للنموذج لمنع الإرسال المكرر
-let isSubmitting = false;
-
-function sendEmail() {
-    // التحقق من الاتصال بالإنترنت
-    if (!checkInternetConnection()) {
-        return;
-    }
-
-    // منع الإرسال المكرر
-    if (isSubmitting) {
-        alert("يتم إرسال رسالتك حالياً، يرجى الانتظار...");
-        return;
-    }
-
-    // التحقق من وجود البيانات
-    const name = document.querySelector("#name").value.trim();
-    const email = document.querySelector("#email").value.trim();
-    const subject = document.querySelector("#subject").value.trim();
-    const message = document.querySelector("#message").value.trim();
-
-    // التحقق من أن جميع الحقول مملوءة
-    if (!name || !email || !subject || !message) {
-        alert("يرجى ملء جميع الحقول المطلوبة.");
-        return;
-    }
-
-    // التحقق من صحة البريد الإلكتروني
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        alert("يرجى إدخال بريد إلكتروني صحيح.");
-        return;
-    }
-
-    // التحقق من طول الرسالة
-    if (message.length < 10) {
-        alert("يرجى كتابة رسالة أطول (على الأقل 10 أحرف).");
-        return;
-    }
-
-    const templateParams = {
-        from_name: name,
-        from_email: email,
-        subject: subject,
-        message: message,
-        to_name: "فريق أكنان"
-    };
-
-    console.log("إرسال البيانات:", templateParams);
-
-    // تعيين حالة الإرسال
-    isSubmitting = true;
-
-    // إظهار حالة التحميل
-    const button = document.getElementById("sendBtn");
-    const originalText = button.textContent;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
-    button.disabled = true;
-
-    // إرسال الرسالة
-    emailjs.send("service_sye2ygn", "template_9uguk78", templateParams)
-    .then(function(response) {
-        console.log("نجح الإرسال:", response.status, response.text);
-        alert("✅ تم إرسال رسالتك بنجاح! شكراً لك.\n\nسنتواصل معك قريباً على البريد الإلكتروني المسجل.");
-        // تفريغ النموذج بعد الإرسال الناجح
-        document.querySelector("#contactForm").reset();
-    })
-    .catch(function(error) {
-        console.error("فشل الإرسال:", error);
-        
-        // رسالة خطأ مفصلة
-        let errorMessage = "❌ حدث خطأ أثناء إرسال الرسالة.";
-        
-        if (error.status === 412) {
-            errorMessage = "مشكلة في صلاحيات الخدمة.";
-        } else if (error.status === 400) {
-            errorMessage = "خطأ في البيانات المرسلة.";
-        } else if (error.status === 401) {
-            errorMessage = "خطأ في المصادقة.";
-        } else if (error.status === 403) {
-            errorMessage = "الخدمة غير مسموحة حالياً.";
-        } else if (error.status >= 500) {
-            errorMessage = "خطأ في الخادم، يرجى المحاولة لاحقاً.";
+        } catch (error) {
+            showFormMessage("حدث خطأ، حاول مرة أخرى!", "fas fa-times-circle", true);
         }
-        
-        alert(errorMessage + "\n\nيمكنك التواصل معنا مباشرة على:\naknanchannel@gmail.com");
-    })
-    .finally(function() {
-        // إعادة حالة الزر الأصلية
-        button.innerHTML = originalText;
-        button.disabled = false;
-        isSubmitting = false;
     });
-}
+
+    function showFormMessage(message, iconClass, isError) {
+
+        formMessageText.textContent = message;
+        formMessageIcon.className = iconClass;
+
+        formMessage.style.backgroundColor = isError ? "#E74C3C" : "#4CAF50";
+
+        formMessage.style.display = "block";
+        setTimeout(() => formMessage.classList.add("show"), 50);
+
+        setTimeout(() => {
+            formMessage.classList.remove("show");
+            setTimeout(() => formMessage.style.display = "none", 300);
+        }, 3000);
+    }
+
+
+
+
+
+    
